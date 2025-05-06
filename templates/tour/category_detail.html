@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ category.name }} | {% trans "Tours" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex items-center mb-4">
+            {% if category.icon %}
+                <div class="text-4xl text-blue-500 mr-4">
+                    <i class="{{ category.icon }}"></i>
+                </div>
+            {% elif category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-16 h-16 object-cover rounded-full mr-4">
+            {% endif %}
+            <h1 class="text-3xl font-bold">{{ category.name }}</h1>
+        </div>
+
+        {% if category.description %}
+            <div class="text-gray-700 mb-6">{{ category.description }}</div>
+        {% endif %}
+    </div>
+
+    <!-- Filter section -->
+    <div class="bg-gray-50 rounded-lg shadow p-4 mb-8">
+        <h2 class="text-xl font-semibold mb-4">{% trans "Filter Tours" %}</h2>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Destination" %}</label>
+                <select name="destination" id="destination" class="form-select block w-full rounded-md border-gray-300">
+                    <option value="">{% trans "All Destinations" %}</option>
+                    {% for destination in destinations %}
+                        <option value="{{ destination.slug }}" {% if request.GET.destination == destination.slug %}selected{% endif %}>
+                            {{ destination.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="price_range" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Price Range" %}</label>
+                <div class="flex space-x-2">
+                    <input type="number" name="min_price" id="min_price" placeholder="{% trans 'Min' %}" 
+                           value="{{ request.GET.min_price|default:'' }}" 
+                           class="form-input block w-full rounded-md border-gray-300">
+                    <input type="number" name="max_price" id="max_price" placeholder="{% trans 'Max' %}" 
+                           value="{{ request.GET.max_price|default:'' }}"
+                           class="form-input block w-full rounded-md border-gray-300">
+                </div>
+            </div>
+            
+            <div>
+                <label for="sort" class="block text-sm font-medium text-gray-700 mb-1">{% trans "Sort By" %}</label>
+                <select name="sort" id="sort" class="form-select block w-full rounded-md border-gray-300">
+                    <option value="created_at" {% if request.GET.sort == 'created_at' or not request.GET.sort %}selected{% endif %}>
+                        {% trans "Newest" %}
+                    </option>
+                    <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>
+                        {% trans "Price (Low to High)" %}
+                    </option>
+                    <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>
+                        {% trans "Price (High to Low)" %}
+                    </option>
+                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>
+                        {% trans "Name (A-Z)" %}
+                    </option>
+                    <option value="popularity" {% if request.GET.sort == 'popularity' %}selected{% endif %}>
+                        {% trans "Popularity" %}
+                    </option>
+                </select>
+            </div>
+            
+            <div class="md:col-span-3 flex justify-end">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md">
+                    {% trans "Apply Filters" %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tours section -->
+    <h2 class="text-2xl font-bold mb-6">{% trans "Tours in" %} {{ category.name }}</h2>
+
+    {% if tours %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for tour in tours %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:shadow-lg">
+                    <a href="{% url 'tour:tour_detail' tour.slug %}">
+                        <div class="relative">
+                            {% if tour.cover_image %}
+                                <img src="{{ tour.cover_image.url }}" alt="{{ tour.name }}" class="w-full h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-500">{% trans "No Image" %}</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if tour.has_discount %}
+                                <div class="absolute top-0 right-0 bg-red-500 text-white text-sm font-bold py-1 px-2">
+                                    -{{ tour.discount_percentage }}%
+                                </div>
+                            {% endif %}
+                            
+                            <div class="absolute bottom-0 left-0 bg-blue-500 text-white text-sm py-1 px-3">
+                                {{ tour.duration_days }} {% trans "days" %} / {{ tour.duration_nights }} {% trans "nights" %}
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-semibold mb-2">
+                                <a href="{% url 'tour:tour_detail' tour.slug %}" class="hover:text-blue-500">
+                                    {{ tour.name }}
+                                </a>
+                            </h3>
+                            <div class="flex items-center">
+                                <span class="text-yellow-500 mr-1"><i class="fas fa-star"></i></span>
+                                <span>{{ tour.get_average_rating }}</span>
+                                <span class="text-gray-500 text-sm">({{ tour.get_review_count }})</span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-600 text-sm mb-3">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i> {{ tour.destination.name }}
+                        </p>
+                        
+                        <p class="text-gray-700 mb-4 line-clamp-2">{{ tour.short_description }}</p>
+                        
+                        <div class="flex justify-between items-center">
+                            <div>
+                                {% if tour.has_discount %}
+                                    <span class="text-gray-500 line-through text-sm mr-2">{{ tour.price }} {{ tour.currency.symbol }}</span>
+                                    <span class="text-red-500 font-bold">{{ tour.discount_price }} {{ tour.currency.symbol }}</span>
+                                {% else %}
+                                    <span class="text-gray-900 font-bold">{{ tour.price }} {{ tour.currency.symbol }}</span>
+                                {% endif %}
+                                <span class="text-gray-600 text-sm">/ {% trans "person" %}</span>
+                            </div>
+                            
+                            <a href="{% url 'tour:tour_detail' tour.slug %}" class="text-blue-500 hover:underline text-sm">
+                                {% trans "View Details" %} →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <p class="text-yellow-700">{% trans "No tours found for this category. Please try a different filter." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

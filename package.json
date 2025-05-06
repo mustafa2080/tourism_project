@@ -1,0 +1,26 @@
+{
+  "name": "tourism_project",
+  "version": "1.0.0",
+  "description": "Tourism website with multi-language support",
+  "scripts": {
+    "prebuild": "chmod +x ./node_modules/.bin/tailwindcss || echo skipping chmod on windows",
+    "build": "npx tailwindcss -i ./static/src/input.css -o ./static/css/style.css --minify",
+    "watch": "tailwindcss -i ./static/src/input.css -o ./static/css/style.css --watch",
+    "build-css": "tailwindcss -i ./static/src/input.css -o ./static/css/main.css --watch",
+    "copy-alpine": "copy node_modules\\\\alpinejs\\\\dist\\\\cdn.min.js static\\\\js\\\\vendor\\\\alpine.min.js"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.9",
+    "caniuse-lite": "^1.0.30001713",
+    "flatpickr": "^4.6.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.17"
+  }
+}

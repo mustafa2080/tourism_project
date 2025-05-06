@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Performance Optimizations" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">{% trans "Performance Optimizations" %}</h1>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">{% trans "Slow Pages" %}</h2>
+        <p class="text-gray-600 mb-4">{% trans "The following pages have been identified as slow (taking more than 2 seconds to load):" %}</p>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{% trans "Page URL" %}</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{% trans "Average Load Time" %}</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{% trans "Count" %}</th>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">{% trans "Last Seen" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for path, data in slow_pages.items %}
+                    <tr>
+                        <td class="py-2 px-4 border-b border-gray-200">{{ path }}</td>
+                        <td class="py-2 px-4 border-b border-gray-200">{{ data.avg_time|floatformat:2 }}s</td>
+                        <td class="py-2 px-4 border-b border-gray-200">{{ data.count }}</td>
+                        <td class="py-2 px-4 border-b border-gray-200">{{ data.last_seen|date:"Y-m-d H:i:s" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-4 px-4 border-b border-gray-200 text-center text-gray-500">{% trans "No slow pages detected yet." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">{% trans "Database Query Statistics" %}</h2>
+        <p class="text-gray-600 mb-4">{% trans "Database query statistics for the current request:" %}</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-blue-800 mb-2">{% trans "Total Queries" %}</h3>
+                <p class="text-3xl font-bold text-blue-600">{{ query_count }}</p>
+            </div>
+            
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-green-800 mb-2">{% trans "Query Time" %}</h3>
+                <p class="text-3xl font-bold text-green-600">{{ query_time|floatformat:2 }}s</p>
+            </div>
+            
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-purple-800 mb-2">{% trans "Page Load Time" %}</h3>
+                <p class="text-3xl font-bold text-purple-600">{{ page_load_time|floatformat:2 }}s</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-semibold mb-4">{% trans "Cache Statistics" %}</h2>
+        <p class="text-gray-600 mb-4">{% trans "Cache hit/miss statistics:" %}</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-indigo-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-indigo-800 mb-2">{% trans "Cache Hits" %}</h3>
+                <p class="text-3xl font-bold text-indigo-600">{{ cache_hits }}</p>
+            </div>
+            
+            <div class="bg-pink-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-pink-800 mb-2">{% trans "Cache Misses" %}</h3>
+                <p class="text-3xl font-bold text-pink-600">{{ cache_misses }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
